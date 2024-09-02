@@ -16,9 +16,7 @@ MFRC522 mfrc522(SS_PIN, RST_PIN);   // Create MFRC522 instance
 
 String tagID = "";
 
-uint8_t buf[10]= {};
 MFRC522::Uid id;
-MFRC522::Uid id2;
 uint8_t control = 0x00;
 
 //*****************************************************************************************//
