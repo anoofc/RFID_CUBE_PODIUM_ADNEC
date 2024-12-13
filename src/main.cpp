@@ -2,18 +2,35 @@
 #define RST_PIN   D0        
 #define SS_PIN    D8  
 
-#define TAG1 "8321E1F4"     
-#define TAG2 "5BA903A"
-#define TAG3 "539F21D"
-#define TAG4 "733733E"
-#define TAG5 "2C79D87D"
-#define TAG6 "93A03DE"
+#define TAG1 "8C5EE37E"     
+#define TAG2 "5C29D17D"
+#define TAG3 "8C519A6E"
+#define TAG4 "DCD8197C"
+#define TAG5 "ACDAE47E"
+#define TAG6 "ECB3677C"
+// ADD N NUMBER OF TAGS ABOVE
+
+#define NUM_OF_TAGS 6       // Number of tags to be checked
+
+#define REMOVE_COMMAND "Z"  // Command to be executed when a tag is removed
+
+#define COMMAND1 "A"       // Command to be executed when TAG1 is detected
+#define COMMAND2 "B"       // Command to be executed when TAG2 is detected
+#define COMMAND3 "C"       // Command to be executed when TAG3 is detected
+#define COMMAND4 "D"       // Command to be executed when TAG4 is detected
+#define COMMAND5 "E"       // Command to be executed when TAG5 is detected
+#define COMMAND6 "F"       // Command to be executed when TAG6 is detected
+
 
 #include <Arduino.h> 
 #include <SPI.h>
 #include <MFRC522.h>
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);   // Create MFRC522 instance
+
+
+String c_tagID  [] = {TAG1, TAG2, TAG3, TAG4, TAG5, TAG6}; // Array to store the tag IDs
+String commands [] = {COMMAND1, COMMAND2, COMMAND3, COMMAND4, COMMAND5, COMMAND6}; // Array to store the commands
 
 String tagID = "";                  // String to store the tag ID
 
@@ -32,13 +49,10 @@ uint8_t control = 0x00;             // Variable to store the control value
  * @param tag_ID The tag ID to be checked.
  */
 void checkTag(String tag_ID){
-  if      (tag_ID == TAG1) { Serial.println('A'); }
-  else if (tag_ID == TAG2) { Serial.println('B'); }
-  else if (tag_ID == TAG3) { Serial.println('C'); }
-  else if (tag_ID == TAG4) { Serial.println('D'); }
-  else if (tag_ID == TAG5) { Serial.println('E'); }
-  else if (tag_ID == TAG6) { Serial.println('F'); }
-  else    { if (DEBUG){Serial.println("Unknown Tag");} }
+  for (int i = 0; i < NUM_OF_TAGS; i++) {
+    if (tag_ID == c_tagID[i]) { Serial.println(); Serial.println(commands[i]); return; }
+  }
+  if (DEBUG){Serial.println("Unknown Tag");} 
 }
 
 /**
@@ -109,8 +123,10 @@ void readCard(){
     if (control == 13 || control == 14){}
     else { break; }
   }
-  if ( tagID == TAG1 || tagID == TAG2 || tagID == TAG3 || tagID == TAG4 || tagID == TAG5 || tagID == TAG6 ) { Serial.println('Z'); }
-  
+  for (int i = 0; i < NUM_OF_TAGS; i++) {
+    if (tagID == c_tagID[i]) { Serial.println(); Serial.println(REMOVE_COMMAND); }
+  }
+    
   if (DEBUG){ Serial.println("CARD REMOVED"); }
   mfrc522.PICC_HaltA();
   mfrc522.PCD_StopCrypto1();
@@ -125,7 +141,7 @@ void readCard(){
  * the current antenna gain setting of the RFID reader to the serial monitor.
  */
 void setup(){
-  Serial.begin(115200);            // Initialize serial communications with the PC
+  Serial.begin(9600);            // Initialize serial communications with the PC
   SPI.begin();                     // Init SPI bus
 
   // mfrc522.PCD_SetAntennaGain(0x07);
